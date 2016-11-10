@@ -10,8 +10,6 @@
 
 @interface RepoCell : UITableViewCell
 
-@property (weak, nonatomic) IBOutlet UIImageView *ownerImageView;
-
-- (void)configureCell:(NSString*) name withScore:(NSInteger) score withOwner:(NSString*) owner;
+- (void)configureCell:(NSString*) name withLanguage:(NSString*) language withStarCount:(NSInteger) starCount withForkCount:(NSInteger) forkCount;
 
 @end

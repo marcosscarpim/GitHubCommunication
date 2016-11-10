@@ -31,24 +31,35 @@ class UserViewController: UIViewController {
     
     @IBAction func searchPressed(_ sender: Any) {
         
-        //GET request to GIT API
-        Alamofire.request("https://api.github.com/search/users?q=" + textField.text!).responseJSON { (response) in
-            print("Alamofire request returned")
-            
-            //save response in gitUsers and reload Table data
-            if let json = response.result.value {
-                let dict = json as! NSDictionary
+        if(textField.text?.isEmpty == false) {
+            //GET request to GIT API
+            Alamofire.request("https://api.github.com/search/users?q=" + textField.text!).responseJSON { (response) in
+                print("Alamofire request returned")
                 
-                self.gitUsers = dict.object(forKey: "items") as! NSArray
+                //save response in gitUsers and reload Table data
+                if let json = response.result.value {
+                    let dict = json as! NSDictionary
+                    
+                    self.gitUsers = dict.object(forKey: "items") as! NSArray
+                    
+                    print("Users count: \(self.gitUsers.count)" )
+                    
+                    self.tableView.reloadData()
+                }
                 
-                print("Users count: \(self.gitUsers.count)" )
-                
-                self.tableView.reloadData()
+                self.view.endEditing(true)
             }
-            
-            self.view.endEditing(true)
+
         }
-        
+    }
+    
+    //send user selected for next VC
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showUser" {
+            let row = sender as! Int
+            let vc = segue.destination as? UserDetailViewController
+            vc?.user = gitUsers[row] as! NSDictionary
+        }
     }
     
 }
@@ -66,7 +77,7 @@ extension UserViewController: UITableViewDataSource, UITableViewDelegate {
         let url = URL(string: dict.object(forKey: "avatar_url") as! String)
         cell?.userImageView?.af_setImage(withURL: url!)
         
-        cell?.contentView.layer.borderColor = UIColor.black.cgColor
+        cell?.contentView.layer.borderColor = UIColor.gray.cgColor
         cell?.contentView.layer.borderWidth = 1.0
         
         return cell!
@@ -78,6 +89,11 @@ extension UserViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.gitUsers.count
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "showUser", sender: indexPath.row)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
 }

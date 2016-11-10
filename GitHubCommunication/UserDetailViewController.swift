@@ -1,67 +1,66 @@
 //
-//  SecondViewController.swift
+//  UserDetailViewController.swift
 //  GitHubCommunication
 //
-//  Created by Marcos Vinicios Minucci Scarpim on 09/11/16.
+//  Created by Marcos Vinicios Minucci Scarpim on 10/11/16.
 //  Copyright © 2016 marcos.scarpim. All rights reserved.
 //
 
 import UIKit
-import Alamofire
 import AlamofireImage
+import Alamofire
 
-class RepoViewController: UIViewController {
+class UserDetailViewController: UIViewController {
 
+    @IBOutlet weak var userImageView: UIImageView!
+    @IBOutlet weak var userNameLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var textField: UITextField!
     
-    //var to save all users found on search
-    var gitRepos = NSArray()
+    var user = NSDictionary()
+    
+    var userRepos = NSArray()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+
+        // Do any additional setup after loading the view.
+        
+        let url = URL(string: user.object(forKey: "avatar_url") as! String)
+        userImageView?.af_setImage(withURL: url!)
+        
+        userNameLabel.text = user.object(forKey: "login") as? String
+        
+        //request user repositories
+        //GET request to GIT API
+        Alamofire.request((user.object(forKey: "repos_url") as? String)!).responseJSON { (response) in
+            print("Alamofire request returned")
+            
+            //save response in gitUsers and reload Table data
+            if let json = response.result.value {
+                self.userRepos = json as! NSArray
+                
+                print("Repos count: \(self.userRepos.count)" )
+                
+                self.tableView.reloadData()
+            }
+            self.view.endEditing(true)
+        }
+        
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-    @IBAction func searchPressed(_ sender: Any) {
-        
-        if(textField.text?.isEmpty == false) {
-            //GET request to GIT API
-            Alamofire.request("https://api.github.com/search/repositories?q=" + textField.text!).responseJSON { (response) in
-                print("Alamofire request returned")
-                
-                //save response in gitUsers and reload Table data
-                if let json = response.result.value {
-                    let dict = json as! NSDictionary
-                    
-                    self.gitRepos = dict.object(forKey: "items") as! NSArray
-                    
-                    print("Repos count: \(self.gitRepos.count)" )
-                    
-                    self.tableView.reloadData()
-                }
-                self.view.endEditing(true)
-            }
-        }
-        
-        
-        
-    }
-
+    
 }
 
-
-extension RepoViewController: UITableViewDataSource, UITableViewDelegate {
+extension UserDetailViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "repoCell") as? RepoCell
         
-        let dict = gitRepos[indexPath.row] as! NSDictionary
+        let dict = userRepos[indexPath.row] as! NSDictionary
         
         //let ownerDict = dict.object(forKey: "owner") as! NSDictionary
         
@@ -90,8 +89,7 @@ extension RepoViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.gitRepos.count
+        return self.userRepos.count
     }
     
 }
-

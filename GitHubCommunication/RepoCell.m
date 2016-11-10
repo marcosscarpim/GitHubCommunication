@@ -12,21 +12,17 @@
 @interface RepoCell ()
 
 @property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *languageLabel;
+@property (weak, nonatomic) IBOutlet UILabel *starCountLabel;
+@property (weak, nonatomic) IBOutlet UILabel *forkCountLabel;
 
-@property (weak, nonatomic) IBOutlet UILabel *scoreLabel;
-
-@property (weak, nonatomic) IBOutlet UILabel *ownerLabel;
 
 @end
 
 @implementation RepoCell
 
-@synthesize ownerImageView;
-
 - (void)prepareForReuse {
     [super prepareForReuse];
-    ownerImageView.clipsToBounds = true;
-    [ownerImageView af_cancelImageRequest];
 }
 
 - (void)awakeFromNib {
@@ -34,10 +30,11 @@
     // Initialization code
 }
 
-- (void)configureCell:(NSString*) name withScore:(NSInteger) score withOwner:(NSString*) owner {
+- (void)configureCell:(NSString*) name withLanguage:(NSString*) language withStarCount:(NSInteger) starCount withForkCount:(NSInteger) forkCount {
     _nameLabel.text = name;
-    _ownerLabel.text = owner;
-    _scoreLabel.text = [NSString stringWithFormat:@"Score: %ld", (long)score];
+    _languageLabel.text = language;
+    _starCountLabel.text = [NSString stringWithFormat:@"%ld", (long)starCount];
+    _forkCountLabel.text = [NSString stringWithFormat:@"%ld", (long)forkCount];
     
 }
 
